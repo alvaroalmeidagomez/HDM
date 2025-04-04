@@ -2,16 +2,13 @@ clc
 clear all
 close all
 
-%%%%%%%%%%Definition of the data-set (Torus)%%%%%%%%%%
-
 u1=50; %%Number of sample points for the first coordinate of the Torus
 u2=50; %% Number of sample points for the second coordinate of the Torus
 K=30; %% k-near neighbourhood
 tol=0.9; %% Tolerance to compute the rank in Local PCA
-korder=2; %% Order (integer) to compute the k-th Hodge Laplacian
-mtrun=3; %%Truncation order
-tm=1;  %% Time of the Markov Chain
-
+mtrun=3;
+tm=1;
+inpoint=1;
 
 X=[];  %%X is the data set
 Coor2d=[]; %%2d coordinates of the dataset
@@ -38,45 +35,29 @@ colist=1:stemp(1);
 Nsize=stemp(1);
 
 
+
 %%%%%%%%%%%%%%%%%Plot Data-set %%%%%%%%%%%%%%%%%%%
+
 
 figure
 scatter3(X(:,1),X(:,2),X(:,3),10,colist,'filled') %%Ploting the data-set X
 title('Plot of the data-set X')
-colormap jet
-cb=colorbar;
-ylabel(cb,'Sample point','FontSize',10)
 
-figure
-scatter(Coor2d(:,1),Coor2d(:,2),10,colist,'filled')
-title('Plot of the parametrization system of the data-set X')
-xlabel('First coordinate')
-ylabel('Second coordinate')
-colormap jet
-cb=colorbar;
-ylabel(cb,'Sample point','FontSize',10)
 
 %%%%%%%%%%%%% Load the data-set X %%%%%%%%%%%%%%%%
-
-
-tttttemp=tic;
 
 [KNeighpoints,Mvector,t] = CompMatrix(X,K); %%Calculating the matrix with K-nearest points
 
 [tangv d ]=localPCA(tol,K,Mvector); %%LocaL PCA function
 
-MatrixA= compMatrixA(Mvector,tangv); %Auxiliar function to compute the Hodge Laplacian
-
-LaplacianM=HodgeMatrix(KNeighpoints,MatrixA,tangv,d,korder,t); %% Function to compute the Hodge Laplacian
-
-[V,S]=svd(LaplacianM); %% Computing the SVD decomposition of the Hodgee-Laplacian.
+ConLap = vdm(tangv,X,t); %% Connection  Laplacian
 
 
-%%%%%%%%% End Hodge-Laplacian Computation %%%%%%%%%
+[V,S]=svd(ConLap);
 
 %%%%%%%%%%%Embedding Computation%%%%%%%%%%%%%
 
-EmbM = embeddingfun(V,S,mtrun,d,korder,tm,Nsize); %%Computing the truncated embedding
+EmbM = embeddingfun(V,S,mtrun,d,tm,Nsize); %%Computing the truncated embedding
 
 
 %%%%%%%%%%%Plotting the embedding%%%%%%%%%
@@ -89,15 +70,41 @@ for itempn1=1:mtrun
         
         figure
         scatter(Coor2d(:,1),Coor2d(:,2),10,vtempn,'filled')
-        title("The (" + itempn1 + "," + itempn2 + ") component of the Hodge diffusion map")
+        title("The (" + itempn1 + "," + itempn2 + ") component of the vector diffusion map")
         xlabel('First coordinate')
         ylabel('Second coordinate')
         colorbar
         colormap jet
-
      
     end
 end
+
+
+%%%%%%%%%Hodge-Diffusion-Distance%%%%%%%%%
+
+VDM=VDMdistance(EmbM,d,Nsize,inpoint);
+
+
+
+
+figure
+scatter3(X(:,1),X(:,2),X(:,3),10,VDM,'filled') %%Ploting the data-set X
+hold on
+scatter3(X(inpoint,1),X(inpoint,2),X(inpoint,3),100,'black','filled')
+title('Vector diffusion maps distance')
+colorbar
+colormap jet
+
+
+figure
+scatter(Coor2d(:,1),Coor2d(:,2),10,VDM,'filled')
+hold on
+scatter(Coor2d(inpoint,1),Coor2d(inpoint,2),100,'black','filled')
+title("Vector diffusion maps distance")
+xlabel('First coordinate')
+ylabel('Second coordinate')
+colorbar
+colormap jet
 
 
 %%%%%%%%Diagonal embedding
@@ -113,7 +120,7 @@ colormap jet
 xlabel('The (1,1)- coordinate')
 ylabel('The (2,2)- coordinate')
 zlabel('The (3,3)- coordinate')
-title("Hodge diffusion maps")
+title("Vector diffusion maps")
 cb=colorbar;
 ylabel(cb,'Sample point','FontSize',10)
 
@@ -123,17 +130,12 @@ scatter(DimRedM(:,1),DimRedM(:,2),10,colist,'filled')
 colormap jet
 xlabel('The (1,1)- coordinate')
 ylabel('The (2,2)- coordinate')
-title("Hodge diffusion maps")
+title("Vector diffusion maps")
 cb=colorbar;
 ylabel(cb,'Sample point','FontSize',10)
 
 
 
-ttn=toc(tttttemp);
-        
- ppri=['The dimension of the manifold is ',num2str(d), '.']; %%Print Algorithm progress
- disp(ppri)
- ppri=['Hodge diffusion maps completed in ',num2str(ttn), ' Seconds.']; %%Print Algorithm progress
- disp(ppri)
+
 
 

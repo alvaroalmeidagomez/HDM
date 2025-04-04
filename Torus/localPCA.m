@@ -20,18 +20,20 @@ for i=1:stemp(1)
     [S Indtemp]=sort(S,'descend');
     U=U(:,Indtemp);
     V=V(:,Indtemp);
+    Sne=cumsum(S)/sum(S);
  
 
 
     CeldSVD{end+1}={{U} {S} {V}}; %%A=USV
 
 
-    dtemp=sum(S>tol);
+    dtemp=sum(Sne<tol);
     dimMan(end+1)=dtemp;
     
 end
 
 d=mode(dimMan);
+
 
 
 Tangvect=zeros(stemp(1),d,stemp(3)); %%Array with tangvectors.

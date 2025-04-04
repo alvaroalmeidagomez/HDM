@@ -7,8 +7,8 @@ close all
 u1=50; %%Number of sample points for the first coordinate of the Torus
 u2=50; %% Number of sample points for the second coordinate of the Torus
 K=30; %% k-near neighbourhood
-tol=0.01; %% Tolerance to compute the rank in Local PCA
-korder=1; %% Order (integer) to compute the k-th Hodge Laplacian
+tol=0.9; %% Tolerance to compute the rank in Local PCA
+korder=2; %% Order (integer) to compute the k-th Hodge Laplacian
 mtrun=3; %%Truncation order
 tm=1;  %% Time of the Markov Chain
 
@@ -127,4 +127,9 @@ ylabel(cb,'Sample point','FontSize',10)
 
 
 
-toc(tttttemp)
+ttn=toc(tttttemp);
+
+ ppri=['The dimension of the manifold is ',num2str(d), '.']; %%Print Algorithm progress
+ disp(ppri)
+ ppri=['Hodge diffusion maps completed in ',num2str(ttn), ' Seconds.']; %%Print Algorithm progress
+ disp(ppri)
